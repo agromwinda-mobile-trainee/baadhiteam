@@ -85,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MainScreen(isDirector: isDirector)),
+        MaterialPageRoute(builder: (context) => MainScreen(isDirector: isDirector, toggleTheme: () {  },)),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -97,30 +97,40 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Connexion")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: usernameController,
-              decoration: const InputDecoration(labelText: "Nom d'utilisateur"),
-            ),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(labelText: "Mot de passe"),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            isLoading
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-              onPressed: _login,
-              child: const Text("Se connecter"),
-            ),
-          ],
+      body: Center(
+        child:Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Center(child: Image.asset('assets/images/LOGO.png', height: 40)),
+              SizedBox(height:30 ,),
+
+              Text('Connexion', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue)),
+              SizedBox(height: 20),
+
+        TextField(
+          controller: usernameController,
+             decoration: const InputDecoration(labelText: 'Email ou numero de telephone', border: OutlineInputBorder()),
+           ),
+           SizedBox(height: 25),
+
+              TextField(
+                controller: passwordController,
+                decoration: const InputDecoration(labelText: "Mot de passe", border: OutlineInputBorder()),
+                obscureText: true,
+              ),
+              const SizedBox(height: 20),
+              isLoading
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                onPressed: _login,
+                child: const Text("Se connecter",style: TextStyle(color: Colors.black),),
+              ),
+            ],
+          ),
         ),
-      ),
+      )
     );
   }
 }

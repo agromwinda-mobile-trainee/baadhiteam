@@ -51,7 +51,7 @@ class _MyAppState extends State<MyApp> {
         appBarTheme: const AppBarTheme(color: Colors.black, iconTheme: IconThemeData(color: Colors.blue)),
       ),
       themeMode: _themeMode,
-      home: _isAuthenticated ? MainScreen(toggleTheme: _toggleTheme, isDirector: _isDirector) : LoginScreen(onLogin: _login),
+      home: _isAuthenticated ? MainScreen(toggleTheme: _toggleTheme, isDirector: _isDirector) : LoginScreen(),
     );
   }
 }

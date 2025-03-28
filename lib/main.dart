@@ -3,6 +3,8 @@ import 'package:baadhi_team/screens/Dash.dart';
 import 'package:baadhi_team/screens/LoginScreen.dart';
 import 'package:flutter/material.dart';
 
+import 'approbation/HomeDirector.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -39,7 +41,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       themeMode: _themeMode,
-      home:_isAuthenticated ? MainScreen(toggleTheme: _toggleTheme, isDirector: _isDirector) : LoginScreen(onLogin: _login),
+      home:_isAuthenticated ? MainScreen(toggleTheme: _toggleTheme, isDirector: _isDirector) : const LoginScreen(),
     );
   }
 }
