@@ -110,7 +110,9 @@
 //
 
 
+import 'package:baadhi_team/screens/NewRequest.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 
 class RequestScreen extends StatefulWidget {
@@ -180,9 +182,21 @@ class _RequestScreenState extends State<RequestScreen> {
       floatingActionButton: widget.isDirector
           ? null
           : FloatingActionButton(
-        onPressed: () {
-          // Naviguer vers l'écran de soumission
-        },
+          onPressed: () async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            String? userToken = prefs.getString("jwt"); // Récupération du token
+
+            if (userToken != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RequestFormScreen(token: userToken),
+                ),
+              );
+            } else {
+              print("Token introuvable !");
+            }
+          },
         child: const Icon(Icons.add),
       ),
     );

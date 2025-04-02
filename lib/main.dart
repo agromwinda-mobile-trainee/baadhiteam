@@ -1,6 +1,7 @@
 import 'package:baadhi_team/screens/AccountScreen.dart';
 import 'package:baadhi_team/screens/Dash.dart';
 import 'package:baadhi_team/screens/LoginScreen.dart';
+import 'package:baadhi_team/screens/RequestScreen.dart';
 import 'package:flutter/material.dart';
 
 import 'approbation/HomeDirector.dart';
@@ -68,7 +69,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final List<Widget> pages = [
       const DashboardScreen(),
-      RequestFormScreen(isDirector: widget.isDirector),
+      RequestScreen(isDirector: widget.isDirector),
       const AccountScreen(),
     ];
     return Scaffold(
