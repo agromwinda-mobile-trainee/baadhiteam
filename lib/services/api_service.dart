@@ -158,4 +158,78 @@ class ApiService {
   }
   }
 
+
+  //nouvelle requisition
+
+  Future<Map<String, dynamic>?> createRequisition({
+    required String currency,
+    required String motif,
+    required String departmentIri,
+    required String projectIri,
+  }) async {
+    try {
+      // Récupérer le token depuis SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString("jwt");
+
+      if (token == null) {
+        print("Token introuvable !");
+        return null;
+      }
+
+      final url = Uri.parse("$baseUrl/requisitions");
+      final response = await http.post(
+        url,
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: jsonEncode({
+          "currency": currency,
+          "motif": motif,
+          "department": departmentIri,
+          "project": projectIri,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        return jsonDecode(response.body); // Retourner la réponse JSON
+      } else {
+        print("Erreur: ${response.statusCode} - ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      print("Erreur lors de la requête : $e");
+      return null;
+    }
+  }
+
+
+  //ajouter une ligne d'une requisition
+
+  Future<List<Map<String, dynamic>>> fetchRequisitionLines({
+    required String token,
+    required  int requisitionId,
+  }) async {
+    final url = Uri.parse(
+        'https://baadhiteammm.com/api/labels=$requisitionId');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      return List<Map<String, dynamic>>.from(data);
+    } else {
+      print('❌ Erreur: ${response.statusCode} - ${response.body}');
+      return [];
+    }
+  }
+
 }
