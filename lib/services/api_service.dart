@@ -25,15 +25,20 @@ class ApiService {
 
         // Récupération du JWT et des infos utilisateur
         String token = data['jwt'];
-        String name = data['name'];
+        String name = data['firstname'];
+        String lastname= data['lastname'];
         String email = data['email'];
+        String phoneNumber = data ['phoneNumber'];
         List<dynamic> roles = data['roles'];
+
 
         // Stocker dans SharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('jwt', token);
-        await prefs.setString('name', name);
+        await prefs.setString('firstname', name);
+        await prefs.setString('lastname', lastname);
         await prefs.setString('email', email);
+        await prefs.setString('phoneNumber', phoneNumber);
         await prefs.setStringList('roles', roles.map((e) => e.toString()).toList());
 
         return true;
@@ -232,4 +237,55 @@ class ApiService {
     }
   }
 
+  //soumettre une requisition
+
+  Future<bool> submitRequisition(int id, String token) async {
+    final url = Uri.parse('https://lbaadhiteam.com/api/requisitions/$id/opt/submit');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({}),
+    );
+
+    if (response.statusCode == 200) {
+      print('Soumission réussie');
+      return true;
+    } else {
+      print('Erreur lors de la soumission: ${response.body}');
+      return false;
+    }
+  }
+
+
+  //director
+
+  Future<List<Map<String, dynamic>>> fetchRequisitionsToValidate() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("jwt");
+
+    if (token == null) {
+      print("Token introuvable !");
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/requisitions?state=pending'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        "Accept": "application/json",
+        "Content-Type":"application/json"
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.cast<Map<String, dynamic>>();
+    } else {
+      print(response.statusCode);
+      throw Exception('Erreur lors du chargement des réquisitions à valider');
+    }
+  }
 }

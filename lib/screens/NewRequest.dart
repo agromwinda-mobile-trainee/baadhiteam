@@ -35,7 +35,8 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
   }
 
   void submitRequisition() async {
-    if (selectedDepartment == null || selectedProject == null) {
+    if (selectedDepartment == null || selectedProject == null
+    ) {
       print("Veuillez sélectionner un département et un projet !");
       return;
     }
@@ -58,7 +59,8 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
         "currency": selectedCurrency,
         "motif": _motifController.text,
         "department": "/api/departments/$selectedDepartment",
-        "project": "/api/projects/$selectedProject",
+        //"project": "/api/projects/3",
+         "project": "/api/projects/$selectedProject",
       }),
     );
 
@@ -76,6 +78,7 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
             builder: (context) => RequisitionLinesScreen(
               token: token,
               requisitionId: requisitionId,
+              isDirector: false,
             ),
           ),
         );
@@ -212,27 +215,29 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
             ElevatedButton(
               onPressed: () async {
                 if (_motifController.text.isNotEmpty &&
-                    selectedDepartment != null &&
-                    selectedBudgetLine != null &&
-                    selectedProject != null) {
+                    selectedDepartment != null
+                     &&
+                     selectedBudgetLine != null &&
+                     selectedProject != null
+                ) {
                   submitRequisition();
-                  // debugPrint("Token utilisé : $widget.token");
-                  //
-                  // SharedPreferences prefs = await SharedPreferences.getInstance();
-                  // String? storedToken = prefs.getString('jwt');
-                  // debugPrint("Token stocké: $storedToken");
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => RequestLinesScreen(
-                  //       token: widget.token,
-                  //       motif: _motifController.text,
-                  //       departmentId: selectedDepartment!,
-                  //       budgetLineId: selectedBudgetLine!,
-                  //       projectId: selectedProject!,
-                  //     ),
-                  //   ),
-                  // );
+                  debugPrint("Token utilisé : $widget.token");
+
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  String? storedToken = prefs.getString('jwt');
+                  debugPrint("Token stocké: $storedToken");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RequestLinesScreen(
+                        token: widget.token,
+                        motif: _motifController.text,
+                        departmentId: selectedDepartment!,
+                        budgetLineId: selectedBudgetLine!,
+                        projectId: selectedProject!,
+                      ),
+                    ),
+                  );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text("Veuillez remplir tous les champs")),

@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
+class DashboardScreen extends StatefulWidget {
+   DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  String? names;
+
+  String ? lastname;
 
   String getGreeting() {
     int hour = DateTime.now().hour;
@@ -14,6 +24,20 @@ class DashboardScreen extends StatelessWidget {
     }
   }
 
+   @override
+   void initState() {
+     super.initState();
+     loadNames();
+   }
+
+   Future<void> loadNames() async {
+     final prefs = await SharedPreferences.getInstance();
+     setState(() {
+       names = prefs.getString('firstname') ?? 'Nom inconnu';
+       lastname = prefs.getString('lastname') ?? 'inconnu';
+     });
+   }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -22,7 +46,7 @@ class DashboardScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${getGreeting()}, Célestin saleh',
+            '${getGreeting()}, $names  $lastname',
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),

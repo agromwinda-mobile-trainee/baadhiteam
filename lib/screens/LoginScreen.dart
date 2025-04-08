@@ -38,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MainScreen(isDirector: isDirector, toggleTheme: () {  },)),
+        MaterialPageRoute(builder: (context) => MainScreen(isDirector: isDirector, toggleTheme: () {  }, initialIndex: 0,)),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

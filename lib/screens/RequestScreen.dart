@@ -1,116 +1,6 @@
-// import 'package:flutter/material.dart';
-// import 'dart:async';
-//
-// import 'NewRequest.dart';
-//
-// class RequestFormScreen extends StatelessWidget {
-//   final bool isDirector;
-//   RequestFormScreen({required this.isDirector});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text('Réquisitions')),
-//       body: ListView(
-//         children: [
-//                Card(
-//                   child: ListTile(
-//                     leading: Icon(Icons.pending_actions),
-//                     title: Text('Réquisition #1234'),
-//                     subtitle: Text('En attente de validation',style: TextStyle(color: Colors.red)),
-//                     onTap: (){
-//                       Navigator.push(
-//                         context,
-//                         MaterialPageRoute(
-//                           builder: (context) => RequestDetailScreen(isDirector: isDirector),
-//                         ),
-//                       );
-//                     },
-//                   ),
-//                 ),
-//
-//                 Card(
-//                   child: ListTile(
-//                     leading: Icon(Icons.check_circle),
-//                     title: Text('Réquisition #5678'),
-//                     subtitle: Text('Approuvée',style: TextStyle(color: Colors.green),),
-//                     onTap:(){
-//                       Navigator.push(
-//                         context,
-//                         MaterialPageRoute(
-//                           builder: (context) => RequestDetailScreen(isDirector: isDirector),
-//                         ),
-//                       );
-//                     },
-//                   ),
-//                 ),
-//         const  SizedBox(height: 20),
-//           Center(child: ElevatedButton(
-//             onPressed: isDirector ? null : () { Navigator.push(
-//               context,
-//               MaterialPageRoute(
-//                 builder: (context) => NewRequestScreen(),
-//               ),
-//             );},
-//     child: const Text(' Nouvelle Réquisition',
-//                 style: TextStyle(color: Colors.red),),
-//           ), ),
-//
-//
-//         ],
-//       ),
-//     );
-//   }
-// }
-//
-// class RequestDetailScreen extends StatelessWidget {
-//   final bool isDirector;
-//   RequestDetailScreen({required this.isDirector});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text('Détail Réquisition')),
-//       body: Padding(
-//         padding: EdgeInsets.all(16.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//           const  Text('Noms de l\'employé: celestin saleh'),
-//           const    Text('Département: TECHNOLOGIE ET INNOVATION'),
-//           const    Text('Montant: 500 USD'),
-//           const    Text('Motif: Achat Serveur'),
-//           const    Text('Date de soumission: 12 mars 2025'),
-//             if (isDirector) ...[
-//               SizedBox(height: 20),
-//               ElevatedButton(
-//                 onPressed: () {},
-//                 child: Text('Approuver'),
-//                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-//               ),
-//               SizedBox(height: 10),
-//               ElevatedButton(
-//                 onPressed: () {},
-//                 child: Text('Modifier'),
-//                 style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-//               ),
-//               SizedBox(height: 10),
-//               ElevatedButton(
-//                 onPressed: () {},
-//                 child: Text('Rejeter'),
-//                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-//               ),
-//             ],
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-
 
 import 'package:baadhi_team/screens/NewRequest.dart';
+import 'package:baadhi_team/screens/requisition_lines.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
@@ -135,8 +25,15 @@ class _RequestScreenState extends State<RequestScreen> {
     _loadRequisitions();
   }
 
+
   void _loadRequisitions() async {
-    List<Map<String, dynamic>> data = await apiService.fetchRequisitions();
+    List<Map<String, dynamic>> data;
+    if (widget.isDirector) {
+      data = await apiService.fetchRequisitionsToValidate(); // route API spéciale directeur
+    } else {
+      data = await apiService.fetchRequisitions(); // route normale utilisateur
+    }
+
     setState(() {
       requisitions = data;
       isLoading = false;
@@ -155,8 +52,15 @@ class _RequestScreenState extends State<RequestScreen> {
           final req = requisitions[index];
           return Card(
             child: ListTile(
-              title: Text("Montant : \$${req['amount']}"),
-              subtitle: Text("Département : ${req['department']}"),
+              title: Text("Motif : ${req['motif']}"),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Département : ${req['department']['name']}"),
+                  Text("Montant : ${req['amount']} ${req['currency']}"),
+                  Text("Par : ${req ['owner']['names']}")
+                ],
+              ),
               trailing: widget.isDirector
                   ? Row(
                 mainAxisSize: MainAxisSize.min,
@@ -172,8 +76,20 @@ class _RequestScreenState extends State<RequestScreen> {
                 ],
               )
                   : null,
-              onTap: () {
-                // Ouvrir les détails de la réquisition
+              onTap: ()async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                String? userToken = prefs.getString("jwt");
+                if (userToken != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RequisitionLinesScreen(
+                        requisitionId: req['id'],
+                        token: userToken, isDirector: widget.isDirector,
+                      ),
+                    ),
+                  );
+                }
               },
             ),
           );

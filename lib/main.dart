@@ -3,8 +3,8 @@ import 'package:baadhi_team/screens/Dash.dart';
 import 'package:baadhi_team/screens/LoginScreen.dart';
 import 'package:baadhi_team/screens/RequestScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'approbation/HomeDirector.dart';
 
 void main() {
   runApp(const MyApp());
@@ -37,12 +37,21 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      routes: {
+        '/login': (context) => LoginScreen(),
+        '/main': (context) => MainScreen(
+          initialIndex: 0,
+          toggleTheme: () {}, // ou ta fonction réelle
+          isDirector: false,
+        ),
+      },
+
       debugShowCheckedModeBanner: false,
       title: 'BaadhiTeam',
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       themeMode: _themeMode,
-      home:_isAuthenticated ? MainScreen(toggleTheme: _toggleTheme, isDirector: _isDirector) : const LoginScreen(),
+      home:_isAuthenticated ? MainScreen(toggleTheme: _toggleTheme, isDirector: _isDirector, initialIndex: 0,) : const LoginScreen(),
     );
   }
 }
@@ -50,7 +59,8 @@ class _MyAppState extends State<MyApp> {
 class MainScreen extends StatefulWidget {
   final VoidCallback toggleTheme;
   final bool isDirector;
-  const MainScreen({super.key, required this.toggleTheme,required this.isDirector});
+  final int initialIndex;
+  const MainScreen({super.key,required this.initialIndex, required this.toggleTheme,required this.isDirector});
 
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -59,6 +69,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -66,9 +77,15 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      const DashboardScreen(),
+       DashboardScreen(),
       RequestScreen(isDirector: widget.isDirector),
       const AccountScreen(),
     ];
@@ -85,7 +102,32 @@ class _MainScreenState extends State<MainScreen> {
             itemBuilder: (BuildContext context) => [
               const PopupMenuItem(value: 'langue', child: Text('Langue')),
               const PopupMenuItem(value: 'theme', child: Text('Mode Sombre')),
-              const PopupMenuItem(value: 'logout', child: Text('Déconnexion')),
+              PopupMenuItem(value: 'logout', child: const Text('Déconnexion'),
+              onTap:()async{
+                final shouldLogout = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text('Déconnexion'),
+                    content: Text('Voulez-vous vraiment vous déconnecter ?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text('Annuler'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: Text('Se déconnecter', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (shouldLogout == true) {
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  await prefs.remove("jwt");
+                  Navigator.pushReplacementNamed(context, '/login');
+                }
+              } ,),
             ],
           ),
         ],
