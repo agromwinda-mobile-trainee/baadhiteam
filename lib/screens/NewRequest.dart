@@ -16,7 +16,7 @@ class RequestFormScreen extends StatefulWidget {
 
 class _RequestFormScreenState extends State<RequestFormScreen> {
   final TextEditingController _motifController = TextEditingController();
-   String selectedCurrency = "USD";
+  String selectedCurrency = "USD";
   ApiService apiService = ApiService();
 
   List<Map<String, dynamic>> departments = [];
@@ -59,8 +59,8 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
         "currency": selectedCurrency,
         "motif": _motifController.text,
         "department": "/api/departments/$selectedDepartment",
-        //"project": "/api/projects/3",
-         "project": "/api/projects/$selectedProject",
+        "project": "/api/projects/$selectedProject",
+        "budgetLine":"api/budget_lines/$selectedBudgetLine"
       }),
     );
 
@@ -89,38 +89,7 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
       debugPrint("❌ Erreur: ${response.statusCode} - ${response.body}");
     }
 
-    // final response = await apiService.createRequisition(
-    //   currency: selectedCurrency,
-    //   motif: _motifController.text,
-    //   departmentIri: "/api/departments/$selectedDepartment",
-    //   projectIri: "/api/projects/$selectedProject",
-    // );
-    //
-    // if (response != null) {
-    //   print("Réquisition créée avec succès : ${response['id']}");
-    //   final requisitionId = {response['id']};
-    //
-    //   // ✅ Redirection vers l'ajout des lignes de réquisition
-    //   Navigator.push(
-    //     context,
-    //     MaterialPageRoute(
-    //       builder: (context) => RequisitionLinesScreen(
-    //         token: widget.token,
-    //         requisitionId: requisitionId,
-    //       ),
-    //     ),
-    //   );
-    //
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(content: Text("Réquisition créée avec succès !")),
-    //   );
-    // } else {
-    //   print("Échec de la création de la réquisition.");
-    //
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(content: Text("Échec de la création de la réquisition.")),
-    //   );
-    // }
+
   }
 
   void fetchData() async {
@@ -152,21 +121,21 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
               decoration: InputDecoration(labelText: "Motif de la réquisition"),
             ),
             SizedBox(height: 20),
-          DropdownButton<String>(
-            value: selectedCurrency,
-            onChanged: (String? newValue) {
-             setState(() {
-           selectedCurrency = newValue!;
-             });
-            },
-           items: ["USD", "CDF"].map((String value) {
-           return DropdownMenuItem<String>(
-           value: value,
-           child: Text(value),
-           );
-           }).toList(),
+            DropdownButton<String>(
+              value: selectedCurrency,
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedCurrency = newValue!;
+                });
+              },
+              items: ["USD", "CDF"].map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
             ),
-             SizedBox(height: 10),
+            SizedBox(height: 10),
             // Sélection du département
             DropdownButtonFormField<String>(
               isExpanded: true,
@@ -197,7 +166,7 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
             ),
             SizedBox(height: 10),
 
-            // Sélection du projet
+
             // Sélection du projet
             DropdownButtonFormField<String>(
               decoration: InputDecoration(labelText: "Projet"),
@@ -216,9 +185,9 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
               onPressed: () async {
                 if (_motifController.text.isNotEmpty &&
                     selectedDepartment != null
-                     &&
-                     selectedBudgetLine != null &&
-                     selectedProject != null
+                   &&
+                   selectedBudgetLine != null &&
+                   selectedProject != null
                 ) {
                   submitRequisition();
                   debugPrint("Token utilisé : $widget.token");
@@ -226,18 +195,6 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
                   SharedPreferences prefs = await SharedPreferences.getInstance();
                   String? storedToken = prefs.getString('jwt');
                   debugPrint("Token stocké: $storedToken");
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RequestLinesScreen(
-                        token: widget.token,
-                        motif: _motifController.text,
-                        departmentId: selectedDepartment!,
-                        budgetLineId: selectedBudgetLine!,
-                        projectId: selectedProject!,
-                      ),
-                    ),
-                  );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text("Veuillez remplir tous les champs")),
@@ -252,103 +209,3 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
     );
   }
 }
-
-
-
-class RequestLinesScreen extends StatefulWidget {
-  final String token;
-  final String motif;
-  final String departmentId;
-  final String budgetLineId;
-  final String projectId;
-
-  const RequestLinesScreen({
-    Key? key,
-    required this.token,
-    required this.motif,
-    required this.departmentId,
-    required this.budgetLineId,
-    required this.projectId,
-  }) : super(key: key);
-
-  @override
-  _RequestLinesScreenState createState() => _RequestLinesScreenState();
-}
-
-class _RequestLinesScreenState extends State<RequestLinesScreen> {
-  List<Map<String, dynamic>> requestLines = [];
-
-  void addRequestLine() {
-    setState(() {
-      requestLines.add({"designation": "", "total": 0, "unitPrice": 0});
-    });
-  }
-
-
-
-  void submitRequisition() {
-    double totalAmount = requestLines.fold(0, (sum, item) => sum + (item["total"] * item["unitPrice"]));
-
-    Map<String, dynamic> requisitionData = {
-      "motif": widget.motif,
-      "departmentId": widget.departmentId,
-      "budgetLineId": widget.budgetLineId,
-      "projectId": widget.projectId,
-      "lines": requestLines,
-      "totalAmount": totalAmount,
-    };
-
-    print("Réquisition soumise: $requisitionData");
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Réquisition soumise avec succès !")));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Lignes de Réquisition")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: requestLines.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: TextField(
-                      decoration: InputDecoration(labelText: "Désignation"),
-                      onChanged: (value) => requestLines[index]["designation"] = value,
-                    ),
-                    subtitle: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(labelText: "Quantité"),
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) => requestLines[index]["total"] = int.tryParse(value) ?? 0,
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(labelText: "Prix Unitaire"),
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) => requestLines[index]["unitPrice"] = double.tryParse(value) ?? 0.0,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-            ElevatedButton(onPressed: addRequestLine, child: Text("Ajouter une ligne")),
-            SizedBox(height: 10),
-            ElevatedButton(onPressed: submitRequisition, child: Text("Soumettre la réquisition")),
-          ],
-        ),
-      ),
-    );
-  }
-}
-

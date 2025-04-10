@@ -91,7 +91,7 @@ class _MainScreenState extends State<MainScreen> {
     ];
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Image.asset('assets/images/LOGO.png', height: 40)),
+        title: Center(child: Image.asset('assets/images/BAADHI_TEAMLOGO-removebg-preview.png', height: 40)),
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) {

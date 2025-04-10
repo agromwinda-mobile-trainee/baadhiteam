@@ -56,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Center(child: Image.asset('assets/images/LOGO.png', height: 40)),
+              Center(child: Image.asset('assets/images/BAADHI_TEAMLOGO-removebg-preview.png', height: 40)),
               SizedBox(height:30 ,),
 
               Text('Connexion', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue)),

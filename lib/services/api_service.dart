@@ -94,8 +94,8 @@ class ApiService {
     }
   }
 
+
 //liste des departements
-  //String token = await login.token('USD', 'First test Api yum');
   Future<List<Map<String, dynamic>>> fetchDepartments(String token) async {
     final String? token = await getToken();
     if (token == null) return [];
@@ -288,4 +288,49 @@ class ApiService {
       throw Exception('Erreur lors du chargement des réquisitions à valider');
     }
   }
+
+  //sign
+  Future<Map<String, dynamic>> fetchUserProfile() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("jwt");
+
+    if (token == null) {
+      print("Token introuvable !");
+    }
+    final response = await http.get(
+      Uri.parse('https://baadhiteam.com/api/user/other/profile'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200 || response.statusCode==201) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Erreur de chargement du profil');
+    }
+  }
+
+  Future<http.Response> validateRequisition(int id, String signatory) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("jwt");
+
+    if (token == null) {
+      print("Token introuvable !");
+    }
+
+    return http.post(
+      Uri.parse('https://baadhiteam.com/api/requisitions/$id/opt/sign?signatory=$signatory'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({}),
+    );
+  }
+
 }
+
+
+

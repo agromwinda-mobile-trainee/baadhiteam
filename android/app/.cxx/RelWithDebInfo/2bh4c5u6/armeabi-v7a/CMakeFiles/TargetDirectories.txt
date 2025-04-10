@@ -1,0 +1,2 @@
+/Users/celestinsaleh/flutter course/baadhi_team/android/app/.cxx/RelWithDebInfo/2bh4c5u6/armeabi-v7a/CMakeFiles/rebuild_cache.dir
+/Users/celestinsaleh/flutter course/baadhi_team/android/app/.cxx/RelWithDebInfo/2bh4c5u6/armeabi-v7a/CMakeFiles/edit_cache.dir
